@@ -1,0 +1,21 @@
+@import "~antd/dist/antd.css";
+
+.App {
+  text-align: center;
+}
+.addToListWrapper {
+  margin: 5px;
+}
+.listToDo .listComplete {
+  max-height: 100px;
+}
+
+input {
+  text-align: center;
+}
+body {
+  margin: 0;
+  background-color: aqua;
+  margin-top: 5%;
+  overflow: hidden;
+}
