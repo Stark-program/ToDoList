@@ -15,7 +15,7 @@ input {
 }
 body {
   margin: 0;
-  background-color: aqua;
+  background-color: aqua !Important; 
   margin-top: 5%;
   overflow: hidden;
 }
