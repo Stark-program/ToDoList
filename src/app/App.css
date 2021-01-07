@@ -2,9 +2,13 @@
 
 .App {
   text-align: center;
+  margin-top: 50px;
+}
+.toDoWrapper {
+  margin-top: 25px;
 }
 .addToListWrapper {
-  margin: 5px;
+  margin-top: 15px;
 }
 .listToDo .listComplete {
   max-height: 100px;
@@ -15,7 +19,7 @@ input {
 }
 body {
   margin: 0;
-  background-color: aqua !Important; 
+  background-color: aqua !important;
   margin-top: 5%;
   overflow: hidden;
 }

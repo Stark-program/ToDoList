@@ -1,31 +1,19 @@
 import "./App.css";
 import React from "react";
-import { useState } from 'react';
+import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import listOfStuffToDo from "./Components/listOfStuffToDo";
-import inputFieldAndButton from './Components/inputFieldAndButton';
-
+import ListOfStuffToDo from "./Components/listOfStuffToDo";
+import InputFieldAndButton from "./Components/inputFieldAndButton";
+import "./App.css";
 
 const App = () => {
-const [page,setPage] = useState('inputFieldAndButton')
   return (
     <div>
-      {
-        page === 'inputFieldAndButton'
-      
-      }
-
+      <InputFieldAndButton />
+      <ListOfStuffToDo />
     </div>
-  )
-    };
-
-
-
-
-
-
-  
-  
+  );
+};
 
 //   <div className="App">
 //     <h1>Stark's To-Do List</h1>
@@ -40,13 +28,13 @@ const [page,setPage] = useState('inputFieldAndButton')
 //     <div className="addToListWrapper">
 //       <Button type="primary">Add to List</Button>
 //     </div>
-//     <div> { listOfStuffToDo }</div>
-//     {/* <div className="container itemLists">
+//     <div> {listOfStuffToDo}</div>
+//     <div className="container itemLists">
 //       <div className="row">
 //         <div className="col-sm-6 listToDo">testing1</div>
 //         <div className="col-sm-6 listComplete">testing2</div>
 //       </div>
-//     </div> */}
+//     </div>
 //   </div>
 // );
 
