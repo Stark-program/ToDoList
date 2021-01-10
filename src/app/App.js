@@ -6,6 +6,12 @@ import "./App.css";
 import { Button } from "antd";
 import { Card } from "antd";
 
+import {
+  CloseCircleOutlined,
+  CheckCircleOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
+
 const App = () => {
   const [task, setTask] = useState("");
   const [list, setList] = useState([]);
@@ -76,7 +82,16 @@ const App = () => {
                 border="true"
                 style={{ width: 500, height: 300, marginTop: 50 }}
               >
-                <p>{listItems}</p>
+                <ul>
+                  <div className="row">
+                    <div className="col-sm-10">{listItems}</div>
+                    <div className="col-sm-2">
+                      <span>
+                        <CheckCircleOutlined />
+                      </span>
+                    </div>
+                  </div>
+                </ul>
               </Card>
             </div>
           </div>
