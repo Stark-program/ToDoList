@@ -13,18 +13,43 @@ import {
 } from "@ant-design/icons";
 
 const App = () => {
+  // sets state for input field, and sets state for
+  // input value storage to be displayed on screen.
   const [task, setTask] = useState("");
   const [list, setList] = useState([]);
-  const listItems = list.map((d) => <li key={d.task}>{d.task}</li>);
+  // adds the new input item to an array via concat, and
+  //updates the state variable with the new item.
   const handleClick = () => {
     const newToDo = list.concat({ task });
     setList(newToDo);
   };
+  // maps over state variable list, and grabs new key items, and displays them.
+  const listItems = list.map((d) => (
+    <div className="row">
+      <div className="col-sm-10">
+        <li className="cardInput" key={d.task}>
+          {d.task}
+        </li>
+      </div>
+      <div className="col-sm-2">
+        <span>
+          <button className="btnComplete">
+            <CheckCircleOutlined />
+          </button>
+          <button className="btnRemove">
+            <CloseCircleOutlined />
+          </button>
+        </span>
+      </div>
+    </div>
+  ));
+
+  // Clears input field and resets it to an empty string.
   const handleInputReset = () => {
     var input = (document.getElementById("textInput").value = "");
     return input;
   };
-
+  // When "Enter button" is pushed down, it runs the handleClick function.
   const enterSubmit = useEffect(() => {
     const listener = (event) => {
       if (event.code === "Enter" || event.code === "NumpadEnter") {
@@ -36,7 +61,7 @@ const App = () => {
       document.removeEventListener("keydown", listener);
     };
   }, [handleClick]);
-
+  // When "Enter button" is released, it clears input field.
   const inputReset = useEffect(() => {
     const listener = (event) => {
       if (event.code === "Enter" || event.code === "NumpadEnter") {
@@ -82,16 +107,7 @@ const App = () => {
                 border="true"
                 style={{ width: 500, height: 300, marginTop: 50 }}
               >
-                <ul>
-                  <div className="row">
-                    <div className="col-sm-10">{listItems}</div>
-                    <div className="col-sm-2">
-                      <span>
-                        <CheckCircleOutlined />
-                      </span>
-                    </div>
-                  </div>
-                </ul>
+                <ul>{listItems}</ul>
               </Card>
             </div>
           </div>

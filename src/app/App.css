@@ -23,3 +23,23 @@ body {
   margin-top: 5%;
   overflow: hidden;
 }
+ul {
+  list-style-type: none;
+}
+.cardInput {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.btnComplete {
+  padding: 0;
+  margin-right: 4px;
+  border: none;
+  background: none;
+  color: green;
+}
+.btnRemove {
+  padding: 0;
+  border: none;
+  background: none;
+  color: red;
+}
