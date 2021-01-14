@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useEffect } from "react";
+
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -13,109 +13,78 @@ const App = () => {
   const [task, setTask] = useState("");
   //sets state for object array of inputs
   const [list, setList] = useState([]);
-  //set state for the completed tasks list
-  const [completedList, setCompletedList] = useState([]);
 
   // adds the new state variable (task) item to an array via concat, and
   //updates the state (list) variable with the new item.
   // we also set our completed key to false, for filtering later.
   const handleClick = () => {
-    var completed = false;
-    const newToDo = list.concat({
-      task,
-      completed,
-      _id: (Math.random() + 1).toFixed(2),
-    });
-    setList(newToDo);
-  };
-
-  const filterListUncomplete = () => {
-    let filterIncomplete = list.filter((x) => x.completed === false);
-    setList(filterIncomplete);
-    console.log(filterIncomplete);
+    if (task === "") {
+      alert("Put text in field");
+    } else {
+      var completed = false;
+      const newToDo = list.concat({
+        task,
+        completed,
+        _id: Math.floor(Math.random() * 10000000),
+      });
+      setList(newToDo);
+      setTask("");
+    }
   };
 
   //filters out key key values of 'completed' that equal true, stores them into the variable "filterComplete" and that variable is
   //used to update the state of the completed task list.
-  const filterListComplete = () => {
-    let filterComplete = list.filter((x) => x.completed === true);
-    setCompletedList(filterComplete);
-    console.log(filterComplete);
-  };
-
-  const removeItemList = () => {
-    setList();
-  };
 
   // maps over state variable (list), and grabs new key items, and displays them.
-  const listItems = list.map((d) => (
-    <div className="row">
-      <div className="col-sm-10">
-        <li className="uniqueItem" key={d._id.toString()}>
-          {d.task}
-        </li>
+  const listItems = list
+    .filter((x) => x.completed === false)
+    .map((d) => (
+      <div key={d._id.toString()} className="row">
+        <div className="col-sm-10">
+          <li className="uniqueItem">{d.task}</li>
+        </div>
+        <div className="col-sm-2">
+          <span>
+            <button
+              className="btnComplete"
+              onClick={() => {
+                let newArr = [...list];
+                let newNew = newArr.findIndex((item) => item._id === d._id);
+                newArr[newNew].completed = true;
+                console.log(newArr);
+                setList(newArr);
+                console.log(newNew);
+              }}
+            >
+              <CheckCircleOutlined />
+            </button>
+            <button
+              className="btnRemove"
+              onClick={() => {
+                let newArr = [...list];
+                let newNew = newArr.findIndex((item) => item._id === d._id);
+                newArr.splice(newNew, 1);
+                console.log(newArr);
+                setList(newArr);
+              }}
+            >
+              <CloseCircleOutlined />
+            </button>
+          </span>
+        </div>
       </div>
-      <div className="col-sm-2">
-        <span>
-          <button
-            className="btnComplete"
-            onClick={() => {
-              d.completed = true;
-              filterListUncomplete();
-              filterListComplete();
-            }}
-          >
-            <CheckCircleOutlined />
-          </button>
-          <button className="btnRemove" onClick={() => {}}>
-            <CloseCircleOutlined />
-          </button>
-        </span>
-      </div>
-    </div>
-  ));
-  console.log(completedList);
-  // maps over the completedlist state, and displays the value of the key "task"
-  const completedListItems = completedList.map((d) => (
-    <div className="row">
-      <div className="col-sm-10">
-        <li className="uniqueItem" key={d._id.toString()}>
-          {d.task}
-        </li>
-      </div>
-      <div className="col-sm-2"></div>
-    </div>
-  ));
+    ));
 
-  // Clears input field and resets it to an empty string.
-  const handleInputReset = () => {
-    var input = (document.getElementById("textInput").value = "");
-    return input;
-  };
-  // When "Enter button" is pushed down, it runs the handleClick function.
-  const enterSubmit = useEffect(() => {
-    const listener = (event) => {
-      if (event.code === "Enter" || event.code === "NumpadEnter") {
-        handleClick();
-      }
-    };
-    document.addEventListener("keydown", listener);
-    return () => {
-      document.removeEventListener("keydown", listener);
-    };
-  }, [handleClick]);
-  // When "Enter button" is released, it clears input field.
-  const inputReset = useEffect(() => {
-    const listener = (event) => {
-      if (event.code === "Enter" || event.code === "NumpadEnter") {
-        handleInputReset();
-      }
-    };
-    document.addEventListener("keyup", listener);
-    return () => {
-      document.removeEventListener("keyup", listener);
-    };
-  }, [handleInputReset]);
+  const completedListItems = list
+    .filter((x) => x.completed === true)
+    .map((d) => (
+      <div key={d._id.toString()} className="row">
+        <div className="col-sm-10">
+          <li className="uniqueItem">{d.task}</li>
+        </div>
+        <div className="col-sm-2"></div>
+      </div>
+    ));
 
   return (
     <div className="App">
@@ -126,18 +95,19 @@ const App = () => {
           type="text"
           className="toDoInput"
           id="textInput"
+          value={task}
           //updates state variable (task) to be the value of the input field
           onChange={(event) => setTask(event.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              handleClick();
+            }
+          }}
+          autoFocus
         ></input>
       </div>
       <div className="addToListWrapper">
-        <Button
-          onClick={handleClick}
-          type="primary"
-          onKeyPress={enterSubmit}
-          onKeyUp={inputReset}
-          id="btnClick"
-        >
+        <Button onClick={handleClick} type="primary" id="btnClick">
           Add to List
         </Button>
       </div>
