@@ -11,7 +11,7 @@
   margin-top: 15px;
 }
 .listToDo .listComplete {
-  max-height: 100px;
+  overflow: scroll;
 }
 
 input {
@@ -21,7 +21,7 @@ body {
   margin: 0;
   background-color: aqua !important;
   margin-top: 5%;
-  overflow: hidden;
+  overflow: scroll;
 }
 ul {
   list-style-type: none;

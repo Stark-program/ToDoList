@@ -3,9 +3,10 @@ import "./App.css";
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import { Button } from "antd";
+import { Button, Form, Input, Checkbox, Col } from "antd";
+import "antd/dist/antd.css";
 import { Card } from "antd";
-
+import axios from "axios";
 import { CloseCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 
 const App = () => {
@@ -13,6 +14,8 @@ const App = () => {
   const [task, setTask] = useState("");
   //sets state for object array of inputs
   const [list, setList] = useState([]);
+  const [isLoginPage, setIsLoginPage] = useState(true);
+  const [isToDoLists, setIsToDoLists] = useState(false);
 
   // adds the new state variable (task) item to an array via concat, and
   //updates the state (list) variable with the new item.
@@ -86,59 +89,193 @@ const App = () => {
       </div>
     ));
 
-  return (
-    <div className="App">
-      <h1>Stark's To-Do List</h1>
-      <div className="toDoWrapper">
-        <input
-          size="100"
-          type="text"
-          className="toDoInput"
-          id="textInput"
-          value={task}
-          //updates state variable (task) to be the value of the input field
-          onChange={(event) => setTask(event.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") {
-              handleClick();
-            }
-          }}
-          autoFocus
-        ></input>
-      </div>
-      <div className="addToListWrapper">
-        <Button onClick={handleClick} type="primary" id="btnClick">
-          Add to List
-        </Button>
-      </div>
+  const loginPage = () => {
+    const onLogin = (values) => {
+      axios
+        .post("http://localhost:3001/users/login", values)
+        .then((res) => {
+          if (res.status === 200) {
+            setIsLoginPage(false);
+            setIsToDoLists(true);
+            console.log("put code here");
+          }
+          if (res.status === 400) {
+            console.log("error bitch");
+            alert("Wrong credentials");
+          }
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      console.log("Success:", values);
+    };
+    const onLoginFailed = (errorInfo) => {
+      console.log("Failed:", errorInfo);
+    };
+    const onFinish = (values) => {
+      axios
+        .post("http://localhost:3001/users", values)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      console.log("Success:", values);
+    };
 
-      <div className="container itemLists">
-        <div className="row">
-          <div className="col-sm-6 listToDo">
-            <div className="site-card-border-less-wrapper">
-              <Card
-                title="Stuff To Do"
-                border="true"
-                style={{ width: 500, height: 300, marginTop: 50 }}
-              >
-                <ul>{listItems}</ul>
-              </Card>
+    const onFinishFailed = (errorInfo) => {
+      console.log("Failed:", errorInfo);
+    };
+    return (
+      <div className="log_in_page">
+        <Form
+          name="basic"
+          labelCol={{ span: 6 }}
+          wrapperCol={{ span: 10 }}
+          initialValues={{ remember: true }}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+        >
+          <Col span={4}>test</Col>
+          <Form.Item
+            label="Username"
+            name="username"
+            rules={[{ required: true, message: "Please input your username!" }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[{ required: true, message: "Please input your password!" }]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          <Form.Item
+            name="remember"
+            valuePropName="checked"
+            wrapperCol={{ offset: 6, span: 10 }}
+          >
+            <Checkbox>Remember me</Checkbox>
+          </Form.Item>
+
+          <Form.Item wrapperCol={{ offset: 6, span: 10 }}>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+          <Col span={4}>test</Col>
+        </Form>
+        <Form
+          name="basic"
+          labelCol={{ span: 6 }}
+          wrapperCol={{ span: 10 }}
+          initialValues={{ remember: true }}
+          onFinish={onLogin}
+          onFinishFailed={onLoginFailed}
+        >
+          <Col span={4}>test</Col>
+          <Form.Item
+            label="Username"
+            name="username"
+            rules={[{ required: true, message: "Please input your username!" }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[{ required: true, message: "Please input your password!" }]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          <Form.Item
+            name="remember"
+            valuePropName="checked"
+            wrapperCol={{ offset: 6, span: 10 }}
+          >
+            <Checkbox>Remember me</Checkbox>
+          </Form.Item>
+
+          <Form.Item wrapperCol={{ offset: 6, span: 10 }}>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+          <Col span={4}>test</Col>
+        </Form>
+      </div>
+    );
+  };
+
+  const toDoLists = () => {
+    return (
+      <div className="App">
+        <h1>Stark's To-Do List</h1>
+        <div className="toDoWrapper">
+          <input
+            size="100"
+            type="text"
+            className="toDoInput"
+            id="textInput"
+            value={task}
+            //updates state variable (task) to be the value of the input field
+            onChange={(event) => setTask(event.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                handleClick();
+              }
+            }}
+            autoFocus
+          ></input>
+        </div>
+        <div className="addToListWrapper">
+          <Button onClick={handleClick} type="primary" id="btnClick">
+            Add to List
+          </Button>
+        </div>
+
+        <div className="container itemLists">
+          <div className="row">
+            <div className="col-sm-6 listToDo">
+              <div className="site-card-border-less-wrapper">
+                <Card
+                  title="Stuff To Do"
+                  border="true"
+                  style={{ width: 500, height: "100%", marginTop: 50 }}
+                >
+                  <ul>{listItems}</ul>
+                </Card>
+              </div>
             </div>
-          </div>
-          <div className="col-sm-6 listComplete">
-            <div className="site-card-border-less-wrapper">
-              <Card
-                id="completedTaskCard"
-                title="Completed Tasks"
-                border="true"
-                style={{ width: 500, height: 300, marginTop: 50 }}
-              >
-                <ul>{completedListItems}</ul>
-              </Card>
+            <div className="col-sm-6 listComplete">
+              <div className="site-card-border-less-wrapper">
+                <Card
+                  id="completedTaskCard"
+                  title="Completed Tasks"
+                  border="true"
+                  style={{ width: 500, height: "100%", marginTop: 50 }}
+                >
+                  <ul>{completedListItems}</ul>
+                </Card>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    );
+  };
+
+  return (
+    <div className="App">
+      {isLoginPage ? loginPage() : null}
+      {isToDoLists ? toDoLists() : null}
     </div>
   );
 };
