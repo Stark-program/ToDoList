@@ -94,14 +94,14 @@ const App = () => {
       axios
         .post("http://localhost:3001/users/login", values)
         .then((res) => {
-          if (res.status === 200) {
+          if (res.data.status === 200) {
             setIsLoginPage(false);
             setIsToDoLists(true);
             console.log("put code here");
           }
-          if (res.status === 400) {
+          if (res.data.status === 400) {
             console.log("error bitch");
-            alert("Wrong credentials");
+            alert("Wrong username or password");
           }
           console.log(res);
         })
@@ -117,7 +117,7 @@ const App = () => {
       axios
         .post("http://localhost:3001/users", values)
         .then((res) => {
-          console.log(res);
+          console.log("User submitted", res);
         })
         .catch((err) => {
           console.log(err);

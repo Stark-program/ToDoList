@@ -28,12 +28,12 @@ app.post("/bad-request", (req, res) => {
 app.post("/users/login", async (req, res) => {
   var user = users.find((user) => user.name == req.body.username);
   console.log(user);
-  if (user == undefined) {
-    return res.status(400).send({ message: "Cannot find user" });
+  if (user == undefined || null) {
+    return res.send({ status: 400, message: "Username or password is wrong" });
   }
   try {
     if (await bcrypt.compare(req.body.password, user.password)) {
-      res.send("success");
+      res.send({ status: 200, message: "Successfully logged in" });
     } else {
       res.send("Not allowed 111");
     }
