@@ -16,6 +16,7 @@ const App = () => {
   const [list, setList] = useState([]);
   const [isLoginPage, setIsLoginPage] = useState(true);
   const [isToDoLists, setIsToDoLists] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
 
   // adds the new state variable (task) item to an array via concat, and
   //updates the state (list) variable with the new item.
@@ -88,6 +89,75 @@ const App = () => {
         <div className="col-sm-2"></div>
       </div>
     ));
+  const onFinish = (values) => {
+    axios
+      .post("http://localhost:3001/users", values)
+      .then((res) => {
+        console.log("User submitted", res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    console.log("Success:", values);
+    setIsSignUp(false);
+    setIsLoginPage(true);
+  };
+
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+  };
+  const render_Sign_Up = () => {
+    return (
+      <div className="sign_up_form">
+        <h2 className="sign_up_header">
+          Please enter in a username and password to sign up
+        </h2>
+        <Form
+          name="basic"
+          labelCol={{ span: 7 }}
+          wrapperCol={{ span: 10 }}
+          initialValues={{ remember: true }}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+        >
+          <Form.Item
+            label="Username"
+            name="username"
+            rules={[{ required: true, message: "Please input your username!" }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[{ required: true, message: "Please input your password!" }]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          <Form.Item
+            name="remember"
+            valuePropName="checked"
+            wrapperCol={{ offset: 7, span: 10, offset: 7 }}
+          >
+            <Checkbox>Remember me</Checkbox>
+          </Form.Item>
+
+          <Form.Item wrapperCol={{ offset: 7, span: 10 }}>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
+    );
+  };
+
+  const signUpClick = () => {
+    setIsLoginPage(false);
+    setIsSignUp(true);
+  };
 
   const loginPage = () => {
     const onLogin = (values) => {
@@ -113,72 +183,18 @@ const App = () => {
     const onLoginFailed = (errorInfo) => {
       console.log("Failed:", errorInfo);
     };
-    const onFinish = (values) => {
-      axios
-        .post("http://localhost:3001/users", values)
-        .then((res) => {
-          console.log("User submitted", res);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      console.log("Success:", values);
-    };
 
-    const onFinishFailed = (errorInfo) => {
-      console.log("Failed:", errorInfo);
-    };
     return (
       <div className="log_in_page">
+        <h2 className="sign_up_header">Log in here</h2>
         <Form
           name="basic"
-          labelCol={{ span: 6 }}
-          wrapperCol={{ span: 10 }}
-          initialValues={{ remember: true }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-        >
-          <Col span={4}>test</Col>
-          <Form.Item
-            label="Username"
-            name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            label="Password"
-            name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
-          >
-            <Input.Password />
-          </Form.Item>
-
-          <Form.Item
-            name="remember"
-            valuePropName="checked"
-            wrapperCol={{ offset: 6, span: 10 }}
-          >
-            <Checkbox>Remember me</Checkbox>
-          </Form.Item>
-
-          <Form.Item wrapperCol={{ offset: 6, span: 10 }}>
-            <Button type="primary" htmlType="submit">
-              Submit
-            </Button>
-          </Form.Item>
-          <Col span={4}>test</Col>
-        </Form>
-        <Form
-          name="basic"
-          labelCol={{ span: 6 }}
+          labelCol={{ span: 7 }}
           wrapperCol={{ span: 10 }}
           initialValues={{ remember: true }}
           onFinish={onLogin}
           onFinishFailed={onLoginFailed}
         >
-          <Col span={4}>test</Col>
           <Form.Item
             label="Username"
             name="username"
@@ -191,24 +207,28 @@ const App = () => {
             label="Password"
             name="password"
             rules={[{ required: true, message: "Please input your password!" }]}
+            className="password_login"
           >
             <Input.Password />
           </Form.Item>
-
+          <div>
+            <a href="#" className="sign_up_link" onClick={signUpClick}>
+              Click here to create login details
+            </a>
+          </div>
           <Form.Item
             name="remember"
             valuePropName="checked"
-            wrapperCol={{ offset: 6, span: 10 }}
+            wrapperCol={{ offset: 7, span: 10 }}
           >
             <Checkbox>Remember me</Checkbox>
           </Form.Item>
 
-          <Form.Item wrapperCol={{ offset: 6, span: 10 }}>
+          <Form.Item wrapperCol={{ offset: 7, span: 10 }}>
             <Button type="primary" htmlType="submit">
               Submit
             </Button>
           </Form.Item>
-          <Col span={4}>test</Col>
         </Form>
       </div>
     );
@@ -274,6 +294,7 @@ const App = () => {
 
   return (
     <div className="App">
+      {isSignUp ? render_Sign_Up() : null}
       {isLoginPage ? loginPage() : null}
       {isToDoLists ? toDoLists() : null}
     </div>

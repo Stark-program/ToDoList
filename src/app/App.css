@@ -43,3 +43,12 @@ ul {
   background: none;
   color: red;
 }
+.password_login {
+  margin-bottom: 0;
+}
+.sign_up_link {
+  cursor: pointer;
+}
+.sign_up_header {
+  margin-bottom: 2rem;
+}
