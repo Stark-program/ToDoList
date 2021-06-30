@@ -167,10 +167,8 @@ const App = () => {
           if (res.data.status === 200) {
             setIsLoginPage(false);
             setIsToDoLists(true);
-            console.log("put code here");
           }
           if (res.data.status === 400) {
-            console.log("error bitch");
             alert("Wrong username or password");
           }
           console.log(res);

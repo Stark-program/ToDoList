@@ -1,66 +1,61 @@
 const express = require("express");
-
+const mongoose = require("mongoose");
 const app = express();
 const bcrypt = require("bcrypt");
 require("dotenv").config();
-const { MongoClient } = require("mongodb");
+const Schema = mongoose.Schema;
+const ObjectId = Schema.ObjectId;
 const mongoPassword = process.env.REACT_APP_MONGODB_PASSWORD;
 const uri = `mongodb+srv://Stark-programming:${mongoPassword}@cluster0.8nsdv.mongodb.net/Users?retryWrites=true&w=majority`;
 
 app.use(express.json());
-const users = [];
 
-const client = new MongoClient(uri, {
+mongoose.connect(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
+});
+const dbName = "Users";
+const db = mongoose.connection;
+const logInSchema = new Schema({
+  name: String,
+  password: String,
+});
+const log_In_Model = mongoose.model("users", logInSchema);
+
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", () => {
+  console.log("Connection established");
 });
 
-const dbName = "Users";
+app.get("/users", (req, res) => {
+  let test = log_In_Model.find({});
+  console.log(test);
+});
 
-async function run() {
+app.post("/users", async (req, res) => {
   try {
-    await client.connect();
-    console.log("Connected correctly to server");
-    const db = client.db(dbName);
-    // Use the collection "people"
-    const col = db.collection("people");
-    // Construct a document
-    let personDocument = {
-      name: { first: "Alan", last: "Turing" },
-      birth: new Date(1912, 5, 23), // June 23, 1912
-      death: new Date(1954, 5, 7), // June 7, 1954
-      contribs: ["Turing machine", "Turing test", "Turingery"],
-      views: 1250000,
-    };
-    // Insert a single document, wait for promise so we can read it back
-    const p = await col.insertOne(personDocument);
-    // Find one document
-    const myDoc = await col.findOne();
-    // Print to the console
-    console.log(myDoc);
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    let name_user = req.body.username;
+    let pass = hashedPassword;
+    const user = new log_In_Model({
+      name: name_user,
+      password: pass,
+    });
+    if (name_user != null) {
+      user.save((err, user) => {
+        if (err) console.log(err);
+        console.log(user);
+      });
+    }
+
+    res.status(201).send();
   } catch (err) {
-    console.log(err.stack);
-  } finally {
-    await client.close();
+    res.status(500).send();
+    console.log(err);
   }
-}
-run().catch(console.dir);
-
-// app.get("/users", (req, res) => {
-//   res.json(users);
-// });
-
-// app.post("/users", async (req, res) => {
-//   try {
-//     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-//     const user = { name: req.body.username, password: hashedPassword };
-//     users.push(user);
-//     res.status(201).send();
-//   } catch (err) {
-//     res.status(500).send();
-//     console.log(err);
-//   }
-// });
+});
 // app.post("/bad-request", (req, res) => {
 //   res.status(400).send({ message: "You are missing vital credentials" });
 // });
@@ -83,4 +78,4 @@ run().catch(console.dir);
 //   }
 // });
 
-// app.listen(3001);
+app.listen(3001);
