@@ -1,6 +1,6 @@
 import "./App.css";
-
-import { useState } from "react";
+import React from "react";
+import { useState, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { Button, Form, Input, Checkbox, Col } from "antd";
@@ -18,23 +18,11 @@ const App = () => {
   const [isToDoLists, setIsToDoLists] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
 
+  const inputElements = useRef();
+
   // adds the new state variable (task) item to an array via concat, and
   //updates the state (list) variable with the new item.
   // we also set our completed key to false, for filtering later.
-  const handleClick = () => {
-    if (task === "") {
-      alert("Put text in field");
-    } else {
-      var completed = false;
-      const newToDo = list.concat({
-        task,
-        completed,
-        _id: Math.floor(Math.random() * 10000000),
-      });
-      setList(newToDo);
-      setTask("");
-    }
-  };
 
   //filters out key key values of 'completed' that equal true, stores them into the variable "filterComplete" and that variable is
   //used to update the state of the completed task list.
@@ -93,14 +81,19 @@ const App = () => {
     axios
       .post("http://localhost:3001/users", values)
       .then((res) => {
-        console.log("User submitted", res);
+        if (res.data.status == 409) {
+          inputElements.current.resetFields();
+          alert(res.data.message);
+        }
+        if (res.status == 201) {
+          setIsSignUp(false);
+          setIsLoginPage(true);
+        }
       })
       .catch((err) => {
         console.log(err);
       });
     console.log("Success:", values);
-    setIsSignUp(false);
-    setIsLoginPage(true);
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -119,6 +112,7 @@ const App = () => {
           initialValues={{ remember: true }}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
+          ref={inputElements}
         >
           <Form.Item
             label="Username"
@@ -169,7 +163,10 @@ const App = () => {
             setIsToDoLists(true);
           }
           if (res.data.status === 400) {
-            alert("Wrong username or password");
+            alert(res.data.message);
+          }
+          if (res.data.status === 500) {
+            alert(res.data.message);
           }
           console.log(res);
         })
@@ -231,7 +228,27 @@ const App = () => {
       </div>
     );
   };
-
+  const handleClick = () => {
+    if (task === "") {
+      alert("Put text in field");
+    } else {
+      var completed = false;
+      const newToDo = list.concat({
+        task,
+        completed,
+        _id: Math.floor(Math.random() * 10000000),
+      });
+      console.log(newToDo);
+      axios
+        .post("http://localhost:3001/users/userstodo", newToDo)
+        .then((res, err) => {
+          if (err) console.log(err);
+          else console.log(res);
+        });
+      // setList(newToDo);
+      // setTask("");
+    }
+  };
   const toDoLists = () => {
     return (
       <div className="App">
