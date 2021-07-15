@@ -10,29 +10,43 @@ router.post(
   "/signup",
   passport.authenticate("signup", { session: false }),
   async (req, res, next) => {
-    res.json({ message: "Signup successful!", user: req.user });
+    res.json({ message: "Signup successful!" });
   }
 );
 
-router.post("/login", async (req, res, next) => {
-  try {
-    if (err || !user) {
-      const error = new Error("an error has occured");
+router.post("/users/login", async (req, res, next) => {
+  passport.authenticate("login", async (err, user, info) => {
+    try {
+      console.log(info);
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        return res.send({ status: 400, message: info.message });
+      }
+
+      req.login(user, { session: false }, async (error) => {
+        if (error) {
+          return next(error);
+        }
+        const name = req.body.username;
+        const body = { _id: user._id, name: name };
+        const token = jwt.sign({ user: body }, secretAuthenticationPassword);
+
+        return res.json({ status: 200, body, token });
+      });
+    } catch (error) {
       return next(error);
     }
-
-    req.login(user, { session: false }, async (error) => {
-      if (error) {
-        return next(error);
-      }
-      const body = { _id: user._id, name: user.username };
-      const token = jwt.sign({ user: body }, secretAuthenticationPassword);
-
-      return res.json({ token });
-    });
-  } catch (error) {
-    return next(error);
-  }
+  })(req, res, next);
 });
+
+router.post(
+  "/users/userstodo",
+  passport.authenticate("jwt", { session: false }),
+  function (req, res) {
+    res.send(req.body);
+  }
+);
 
 module.exports = router;

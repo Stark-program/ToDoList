@@ -1,23 +1,17 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
-const bcrypt = require("bcrypt");
 const passport = require("passport");
-const initializePassport = require("./passport-config");
-const jwt = require("jsonwebtoken");
 const cors = require("cors");
-const {
-  default: InternalPreviewGroup,
-} = require("antd/lib/image/PreviewGroup");
+const bodyParser = require("body-parser");
 require("dotenv").config();
-const log_In_Model = require("./model/users");
-const to_Do_Model = require("./model/toDo");
+require("./auth/auth");
+const routes = require("./routes/routes");
+const secureRoute = require("./routes/secure-routes");
+const mongoPassword = process.env.REACT_APP_MONGODB_PASSWORD;
+const uri = `mongodb+srv://Stark-programming:${mongoPassword}@cluster0.8nsdv.mongodb.net/Users?retryWrites=true&w=majority`;
 
 const secretAuthenticationPassword = process.env.SESSION_SECRET;
-
-app.use(express.json());
-app.use(passport.initialize());
-app.use(cors());
 
 mongoose.connect(uri, {
   useNewUrlParser: true,
@@ -32,8 +26,19 @@ db.once("open", () => {
   console.log("Connection established");
 });
 
-app.post("/users");
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
 
-app.post("/users/login", log_In_Model, async (req, res) => {});
+app.use(cors());
+app.use("/", routes);
+app.use(
+  "/users/login",
+  passport.authenticate("jwt", { session: false }),
+  secureRoute
+);
+app.use(function (err, req, res, next) {
+  res.status(err.status || 500);
+  res.json({ error: err });
+});
 
 app.listen(3001);

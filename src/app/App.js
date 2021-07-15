@@ -6,9 +6,12 @@ import "./App.css";
 import { Button, Form, Input, Checkbox, Col } from "antd";
 import "antd/dist/antd.css";
 import { Card } from "antd";
-import axios from "axios";
+
 import { CloseCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
-import { session } from "passport";
+import axios from "axios";
+const token = sessionStorage.getItem("Authorization");
+axios.defaults.baseURL = "http://localhost:3001/";
+axios.defaults.headers.common = { Authorization: `bearer ${token}` };
 
 const App = () => {
   // sets state for input field
@@ -82,7 +85,7 @@ const App = () => {
     ));
   const onFinish = (values) => {
     axios
-      .post("http://localhost:3001/users", values)
+      .post("http://localhost:3001/signup", values)
       .then((res) => {
         if (res.data.status == 409) {
           inputElements.current.resetFields();
@@ -165,10 +168,10 @@ const App = () => {
           if (res.data.status === 200) {
             setIsLoginPage(false);
             setIsToDoLists(true);
-            let token = res.data.Authorization;
-            myStorage.setItem("name", res.data.name);
-            sessionStorage.setItem("token", token);
-            setIsSessionToken(res.data.Authorization);
+            let token = res.data.token;
+            sessionStorage.setItem("name", res.data.body.name);
+            sessionStorage.setItem("Authorization", token);
+            setIsSessionToken(token);
           }
           if (res.data.status === 400) {
             alert(res.data.message);
@@ -240,19 +243,17 @@ const App = () => {
     );
   };
   const handleClick = () => {
-    let token = sessionStorage.getItem("token");
-    const config = {
+    let token = sessionStorage.getItem("Authorization");
+    let config = {
       headers: {
-        Authorization: token,
+        Authorization: "Bearer " + token,
       },
     };
     if (task === "") {
       alert("Put text in field");
     } else {
-      console.log(isSessionToken);
       var completed = false;
       var name = sessionStorage.getItem("name");
-      console.log(config);
 
       const newToDo = {
         name: name,
