@@ -8,6 +8,7 @@ import "antd/dist/antd.css";
 import { Card } from "antd";
 import axios from "axios";
 import { CloseCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { session } from "passport";
 
 const App = () => {
   // sets state for input field
@@ -17,8 +18,10 @@ const App = () => {
   const [isLoginPage, setIsLoginPage] = useState(true);
   const [isToDoLists, setIsToDoLists] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isSessionToken, setIsSessionToken] = useState("");
 
   const inputElements = useRef();
+  const myStorage = window.sessionStorage;
 
   // adds the new state variable (task) item to an array via concat, and
   //updates the state (list) variable with the new item.
@@ -155,18 +158,25 @@ const App = () => {
 
   const loginPage = () => {
     const onLogin = (values) => {
+      console.log(values);
       axios
         .post("http://localhost:3001/users/login", values)
         .then((res) => {
           if (res.data.status === 200) {
             setIsLoginPage(false);
             setIsToDoLists(true);
+            let token = res.data.Authorization;
+            myStorage.setItem("name", res.data.name);
+            sessionStorage.setItem("token", token);
+            setIsSessionToken(res.data.Authorization);
           }
           if (res.data.status === 400) {
             alert(res.data.message);
+            inputElements.current.resetFields();
           }
           if (res.data.status === 500) {
             alert(res.data.message);
+            inputElements.current.resetFields();
           }
           console.log(res);
         })
@@ -189,6 +199,7 @@ const App = () => {
           initialValues={{ remember: true }}
           onFinish={onLogin}
           onFinishFailed={onLoginFailed}
+          ref={inputElements}
         >
           <Form.Item
             label="Username"
@@ -229,18 +240,29 @@ const App = () => {
     );
   };
   const handleClick = () => {
+    let token = sessionStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: token,
+      },
+    };
     if (task === "") {
       alert("Put text in field");
     } else {
+      console.log(isSessionToken);
       var completed = false;
-      const newToDo = list.concat({
-        task,
-        completed,
+      var name = sessionStorage.getItem("name");
+      console.log(config);
+
+      const newToDo = {
+        name: name,
+        toDo: task,
+        completed: completed,
         _id: Math.floor(Math.random() * 10000000),
-      });
-      console.log(newToDo);
+      };
+
       axios
-        .post("http://localhost:3001/users/userstodo", newToDo)
+        .post("http://localhost:3001/users/userstodo", newToDo, config)
         .then((res, err) => {
           if (err) console.log(err);
           else console.log(res);
