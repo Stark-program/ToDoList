@@ -9,9 +9,9 @@ import { Card } from "antd";
 
 import { CloseCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import axios from "axios";
-const token = sessionStorage.getItem("Authorization");
-axios.defaults.baseURL = "http://localhost:3001/";
-axios.defaults.headers.common = { Authorization: `bearer ${token}` };
+
+// axios.defaults.baseURL = "http://localhost:3001/";
+// axios.defaults.headers.common = { Authorization: `${token}` };
 
 const App = () => {
   // sets state for input field
@@ -21,10 +21,8 @@ const App = () => {
   const [isLoginPage, setIsLoginPage] = useState(true);
   const [isToDoLists, setIsToDoLists] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [isSessionToken, setIsSessionToken] = useState("");
 
   const inputElements = useRef();
-  const myStorage = window.sessionStorage;
 
   // adds the new state variable (task) item to an array via concat, and
   //updates the state (list) variable with the new item.
@@ -168,10 +166,10 @@ const App = () => {
           if (res.data.status === 200) {
             setIsLoginPage(false);
             setIsToDoLists(true);
-            let token = res.data.token;
-            sessionStorage.setItem("name", res.data.body.name);
-            sessionStorage.setItem("Authorization", token);
-            setIsSessionToken(token);
+            console.log(res.data);
+            let token = res.data.authorization;
+
+            localStorage.setItem("Authorization", token);
           }
           if (res.data.status === 400) {
             alert(res.data.message);
@@ -243,20 +241,19 @@ const App = () => {
     );
   };
   const handleClick = () => {
-    let token = sessionStorage.getItem("Authorization");
+    let token = localStorage.getItem("Authorization");
     let config = {
       headers: {
-        Authorization: "Bearer " + token,
+        authorization: token,
       },
     };
+
     if (task === "") {
       alert("Put text in field");
     } else {
       var completed = false;
-      var name = sessionStorage.getItem("name");
 
       const newToDo = {
-        name: name,
         toDo: task,
         completed: completed,
         _id: Math.floor(Math.random() * 10000000),
