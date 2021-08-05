@@ -34,10 +34,10 @@ const App = () => {
   //used to update the state of the completed task list.
 
   // maps over state variable (list), and grabs new key items, and displays them.
-
+  console.log(initialToDoList);
   const listItems = () => {
     if (successfulLogIn === true) {
-      return initialToDoList[0]
+      return initialToDoList
         .filter((x) => x.to_Do_Completed === false)
         .map((d) => (
           <div key={d._id.toString()} className="row">
@@ -49,11 +49,11 @@ const App = () => {
                 <button
                   className="btnComplete"
                   onClick={() => {
-                    let newArr = [...list];
+                    let newArr = [...initialToDoList];
                     let newNew = newArr.findIndex((item) => item._id === d._id);
-                    newArr[newNew].completed = true;
+                    newArr[newNew].to_Do_Completed = true;
                     console.log(newArr);
-                    setList(newArr);
+                    setInitialToDoList(newArr);
                     console.log(newNew);
                   }}
                 >
@@ -62,7 +62,7 @@ const App = () => {
                 <button
                   className="btnRemove"
                   onClick={() => {
-                    let newArr = [...list];
+                    let newArr = [...initialToDoList];
                     let newNew = newArr.findIndex((item) => item._id === d._id);
                     newArr.splice(newNew, 1);
                     console.log(newArr);
@@ -78,12 +78,12 @@ const App = () => {
     }
   };
 
-  const completedListItems = list
-    .filter((x) => x.completed === true)
+  const completedListItems = initialToDoList
+    .filter((x) => x.to_Do_Completed === true)
     .map((d) => (
       <div key={d._id.toString()} className="row">
         <div className="col-sm-10">
-          <li className="uniqueItem">{d.task}</li>
+          <li className="uniqueItem">{d.to_Do_Item}</li>
         </div>
         <div className="col-sm-2"></div>
       </div>
@@ -185,9 +185,11 @@ const App = () => {
               .then((res) => {
                 if (res.data.status === 200) {
                   let toDoData = res.data.info;
+                  console.log(toDoData);
                   let arr = [];
                   arr.push(toDoData);
-                  setInitialToDoList(arr);
+                  console.log(arr);
+                  setInitialToDoList(arr[0]);
                   setSuccessfulLogIn(true);
                 }
               });
@@ -273,11 +275,9 @@ const App = () => {
     if (task === "") {
       alert("Put text in field");
     } else {
-      var completed = false;
-
       const newToDo = {
-        toDo: task,
-        completed: completed,
+        to_Do_Item: task,
+        to_Do_Completed: false,
         _id: Math.floor(Math.random() * 10000000),
       };
 
@@ -287,7 +287,12 @@ const App = () => {
           if (res.data.status == 409) {
             alert(`${res.data.message}`);
             setTask("");
-          } else console.log(res);
+          } else {
+            let oldArr = initialToDoList;
+            setInitialToDoList([...oldArr, newToDo]);
+            setTask("");
+            console.log(res);
+          }
         });
     }
   };

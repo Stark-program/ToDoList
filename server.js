@@ -104,33 +104,38 @@ app.get("/users/userstodo", jwtAuth, async (req, res) => {
 });
 
 app.post("/users/userstodo", jwtAuth, async (req, res) => {
+  console.log(req);
   let toDo = new to_Do_Model({
     name: req.user.user.name,
-    to_Do_Item: req.body.toDo,
-    to_Do_Completed: false,
+    to_Do_Item: req.body.to_Do_Item,
+    to_Do_Completed: req.body.to_Do_Completed,
   });
+  console.log(toDo);
 
-  to_Do_Model.exists({ to_Do_Item: req.body.toDo }, async (err, result) => {
-    let task = req.body.toDo;
-    if (err) {
-      console.log(err);
-      res.json({ message: err.message });
-    } else if (result == true || task == null) {
-      res.send({
-        status: 409,
-        message: "To_do already exists, please enter in a new to_do",
-      });
-    } else if (result == false) {
-      await toDo.save((err, task) => {
-        if (err) console.log(err);
-        res.json({
-          status: 200,
-          task_added: task,
-          message: "task successfully added",
+  to_Do_Model.exists(
+    { to_Do_Item: req.body.to_Do_Item },
+    async (err, result) => {
+      let task = req.body.to_Do_Item;
+      if (err) {
+        console.log(err);
+        res.json({ message: err.message });
+      } else if (result == true || task == null) {
+        res.send({
+          status: 409,
+          message: "To_do already exists, please enter in a new to_do",
         });
-      });
+      } else if (result == false) {
+        await toDo.save((err, task) => {
+          if (err) console.log(err);
+          res.json({
+            status: 200,
+            task_added: task,
+            message: "task successfully added",
+          });
+        });
+      }
     }
-  });
+  );
 });
 
 app.listen(3001);
