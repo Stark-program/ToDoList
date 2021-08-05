@@ -69,7 +69,7 @@ app.post("/signup", async (req, res) => {
 
 app.post("/users/login", async (req, res) => {
   var user = await log_In_Model.find({ name: req.body.username });
-  console.log(user);
+
   if (user == undefined || null) {
     return res.send({ status: 400, message: "Username could not be found" });
   }
@@ -93,6 +93,14 @@ app.post("/users/login", async (req, res) => {
     res.send({ status: 500, message: "Wrong Username" });
     console.log(err);
   }
+});
+
+app.get("/users/userstodo", jwtAuth, async (req, res) => {
+  let user = req.user.user.name;
+  to_Do_Model.find({ name: user }, (err, data) => {
+    if (err) console.log(err);
+    else res.send({ status: 200, info: data });
+  });
 });
 
 app.post("/users/userstodo", jwtAuth, async (req, res) => {

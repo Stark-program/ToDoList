@@ -21,6 +21,8 @@ const App = () => {
   const [isLoginPage, setIsLoginPage] = useState(true);
   const [isToDoLists, setIsToDoLists] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [initialToDoList, setInitialToDoList] = useState([]);
+  const [successfulLogIn, setSuccessfulLogIn] = useState(false);
 
   const inputElements = useRef();
 
@@ -32,44 +34,49 @@ const App = () => {
   //used to update the state of the completed task list.
 
   // maps over state variable (list), and grabs new key items, and displays them.
-  const listItems = list
-    .filter((x) => x.completed === false)
-    .map((d) => (
-      <div key={d._id.toString()} className="row">
-        <div className="col-sm-10">
-          <li className="uniqueItem">{d.task}</li>
-        </div>
-        <div className="col-sm-2">
-          <span>
-            <button
-              className="btnComplete"
-              onClick={() => {
-                let newArr = [...list];
-                let newNew = newArr.findIndex((item) => item._id === d._id);
-                newArr[newNew].completed = true;
-                console.log(newArr);
-                setList(newArr);
-                console.log(newNew);
-              }}
-            >
-              <CheckCircleOutlined />
-            </button>
-            <button
-              className="btnRemove"
-              onClick={() => {
-                let newArr = [...list];
-                let newNew = newArr.findIndex((item) => item._id === d._id);
-                newArr.splice(newNew, 1);
-                console.log(newArr);
-                setList(newArr);
-              }}
-            >
-              <CloseCircleOutlined />
-            </button>
-          </span>
-        </div>
-      </div>
-    ));
+
+  const listItems = () => {
+    if (successfulLogIn === true) {
+      return initialToDoList[0]
+        .filter((x) => x.to_Do_Completed === false)
+        .map((d) => (
+          <div key={d._id.toString()} className="row">
+            <div className="col-sm-10">
+              <li className="uniqueItem">{d.to_Do_Item}</li>
+            </div>
+            <div className="col-sm-2">
+              <span>
+                <button
+                  className="btnComplete"
+                  onClick={() => {
+                    let newArr = [...list];
+                    let newNew = newArr.findIndex((item) => item._id === d._id);
+                    newArr[newNew].completed = true;
+                    console.log(newArr);
+                    setList(newArr);
+                    console.log(newNew);
+                  }}
+                >
+                  <CheckCircleOutlined />
+                </button>
+                <button
+                  className="btnRemove"
+                  onClick={() => {
+                    let newArr = [...list];
+                    let newNew = newArr.findIndex((item) => item._id === d._id);
+                    newArr.splice(newNew, 1);
+                    console.log(newArr);
+                    setList(newArr);
+                  }}
+                >
+                  <CloseCircleOutlined />
+                </button>
+              </span>
+            </div>
+          </div>
+        ));
+    }
+  };
 
   const completedListItems = list
     .filter((x) => x.completed === true)
@@ -85,11 +92,11 @@ const App = () => {
     axios
       .post("http://localhost:3001/signup", values)
       .then((res) => {
-        if (res.data.status == 409) {
+        if (res.data.status === 409) {
           inputElements.current.resetFields();
           alert(res.data.message);
         }
-        if (res.status == 201) {
+        if (res.status === 201) {
           setIsSignUp(false);
           setIsLoginPage(true);
         }
@@ -97,7 +104,6 @@ const App = () => {
       .catch((err) => {
         console.log(err);
       });
-    console.log("Success:", values);
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -159,20 +165,32 @@ const App = () => {
 
   const loginPage = () => {
     const onLogin = (values) => {
-      console.log(values);
       axios
         .post("http://localhost:3001/users/login", values)
         .then((res) => {
           if (res.data.status === 200) {
             setIsLoginPage(false);
             setIsToDoLists(true);
-            console.log(res.data);
+
             let token = res.data.authorization;
+            let config = {
+              headers: {
+                authorization: token,
+              },
+            };
 
             localStorage.setItem("Authorization", token);
             axios
-              .get("http://localhost:3001/users/userstodo")
-              .then((res) => console.log(res));
+              .get("http://localhost:3001/users/userstodo", config)
+              .then((res) => {
+                if (res.data.status === 200) {
+                  let toDoData = res.data.info;
+                  let arr = [];
+                  arr.push(toDoData);
+                  setInitialToDoList(arr);
+                  setSuccessfulLogIn(true);
+                }
+              });
           }
           if (res.data.status === 400) {
             alert(res.data.message);
@@ -182,13 +200,13 @@ const App = () => {
             alert(res.data.message);
             inputElements.current.resetFields();
           }
-          console.log(res);
         })
         .catch((err) => {
           console.log(err);
         });
       console.log("Success:", values);
     };
+
     const onLoginFailed = (errorInfo) => {
       console.log("Failed:", errorInfo);
     };
@@ -243,6 +261,7 @@ const App = () => {
       </div>
     );
   };
+
   const handleClick = () => {
     let token = localStorage.getItem("Authorization");
     let config = {
@@ -308,7 +327,7 @@ const App = () => {
                   border="true"
                   style={{ width: 500, height: "100%", marginTop: 50 }}
                 >
-                  <ul>{listItems}</ul>
+                  <ul>{listItems()}</ul>
                 </Card>
               </div>
             </div>
