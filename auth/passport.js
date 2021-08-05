@@ -9,6 +9,7 @@ opts.secretOrKey = process.env.SESSION_SECRET;
 passport.use(
   new JwtStrategy(opts, function (jwt_load, next) {
     const user_id = jwt_load.user_id;
+    console.log(jwt_load);
     next(null, jwt_load);
   })
 );

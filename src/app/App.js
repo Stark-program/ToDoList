@@ -170,6 +170,9 @@ const App = () => {
             let token = res.data.authorization;
 
             localStorage.setItem("Authorization", token);
+            axios
+              .get("http://localhost:3001/users/userstodo")
+              .then((res) => console.log(res));
           }
           if (res.data.status === 400) {
             alert(res.data.message);
@@ -262,11 +265,11 @@ const App = () => {
       axios
         .post("http://localhost:3001/users/userstodo", newToDo, config)
         .then((res, err) => {
-          if (err) console.log(err);
-          else console.log(res);
+          if (res.data.status == 409) {
+            alert(`${res.data.message}`);
+            setTask("");
+          } else console.log(res);
         });
-      // setList(newToDo);
-      // setTask("");
     }
   };
   const toDoLists = () => {
