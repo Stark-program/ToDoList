@@ -23,6 +23,7 @@ mongoose.connect(uri, {
   useCreateIndex: true,
 });
 const db = mongoose.connection;
+mongoose.set("returnOriginal", false);
 
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", () => {
@@ -133,6 +134,20 @@ app.post("/users/userstodo", jwtAuth, async (req, res) => {
             message: "task successfully added",
           });
         });
+      }
+    }
+  );
+});
+app.post("/completed", jwtAuth, async (req, res) => {
+  let query = { to_Do_Item: req.body[0].to_Do_Item };
+  to_Do_Model.findOneAndUpdate(
+    query,
+    { to_Do_Completed: true },
+    function (err, doc) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(doc);
       }
     }
   );

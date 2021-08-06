@@ -34,7 +34,7 @@ const App = () => {
   //used to update the state of the completed task list.
 
   // maps over state variable (list), and grabs new key items, and displays them.
-  console.log(initialToDoList);
+  // console.log(initialToDoList);
   const listItems = () => {
     if (successfulLogIn === true) {
       return initialToDoList
@@ -49,12 +49,29 @@ const App = () => {
                 <button
                   className="btnComplete"
                   onClick={() => {
+                    let token = localStorage.getItem("Authorization");
+                    let config = {
+                      headers: {
+                        authorization: token,
+                      },
+                    };
                     let newArr = [...initialToDoList];
                     let newNew = newArr.findIndex((item) => item._id === d._id);
+                    let newData = newArr.filter((x) => {
+                      if (x.to_Do_Item === d.to_Do_Item) {
+                        return x.to_Do_Item;
+                      }
+                    });
+                    console.log("testing", newData);
                     newArr[newNew].to_Do_Completed = true;
-                    console.log(newArr);
+                    // console.log(newArr);
                     setInitialToDoList(newArr);
-                    console.log(newNew);
+                    // console.log(newNew);
+                    axios.post(
+                      "http://localhost:3001/completed",
+                      newData,
+                      config
+                    );
                   }}
                 >
                   <CheckCircleOutlined />
