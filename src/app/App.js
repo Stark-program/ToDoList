@@ -3,11 +3,15 @@ import React from "react";
 import { useState, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import { Button, Form, Input, Checkbox, Col } from "antd";
+import { Button, Form, Input, Checkbox } from "antd";
 import "antd/dist/antd.css";
 import { Card } from "antd";
 
-import { CloseCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import {
+  CloseCircleOutlined,
+  CheckCircleOutlined,
+  LeftCircleOutlined,
+} from "@ant-design/icons";
 import axios from "axios";
 
 // axios.defaults.baseURL = "http://localhost:3001/";
@@ -16,8 +20,7 @@ import axios from "axios";
 const App = () => {
   // sets state for input field
   const [task, setTask] = useState("");
-  //sets state for object array of inputs
-  const [list, setList] = useState([]);
+
   const [isLoginPage, setIsLoginPage] = useState(true);
   const [isToDoLists, setIsToDoLists] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -62,16 +65,15 @@ const App = () => {
                         return x.to_Do_Item;
                       }
                     });
-                    console.log("testing", newData);
-                    newArr[newNew].to_Do_Completed = true;
-                    // console.log(newArr);
-                    setInitialToDoList(newArr);
-                    // console.log(newNew);
-                    axios.post(
-                      "http://localhost:3001/completed",
-                      newData,
-                      config
-                    );
+
+                    axios
+                      .post("http://localhost:3001/completed", newData, config)
+                      .then((res) => {
+                        if (res.status === 200) {
+                          newArr[newNew].to_Do_Completed = true;
+                          setInitialToDoList(newArr);
+                        }
+                      });
                   }}
                 >
                   <CheckCircleOutlined />
@@ -79,11 +81,26 @@ const App = () => {
                 <button
                   className="btnRemove"
                   onClick={() => {
+                    let token = localStorage.getItem("Authorization");
+                    let config = {
+                      headers: {
+                        authorization: token,
+                      },
+                    };
                     let newArr = [...initialToDoList];
                     let newNew = newArr.findIndex((item) => item._id === d._id);
-                    newArr.splice(newNew, 1);
-                    console.log(newArr);
-                    setList(newArr);
+                    let deletedArr = newArr.filter((x) => {
+                      return x._id === d._id;
+                    });
+
+                    axios
+                      .post("http://localhost:3001/deleted", deletedArr, config)
+                      .then((res) => {
+                        if (res.status === 200) {
+                          newArr.splice(newNew, 1);
+                          setInitialToDoList(newArr);
+                        }
+                      });
                   }}
                 >
                   <CloseCircleOutlined />
@@ -102,7 +119,67 @@ const App = () => {
         <div className="col-sm-10">
           <li className="uniqueItem">{d.to_Do_Item}</li>
         </div>
-        <div className="col-sm-2"></div>
+        <div className="col-sm-2">
+          <span>
+            <button
+              className="btnComplete"
+              onClick={() => {
+                let token = localStorage.getItem("Authorization");
+                let config = {
+                  headers: {
+                    authorization: token,
+                  },
+                };
+                let newArr = [...initialToDoList];
+                let newNew = newArr.findIndex((item) => item._id === d._id);
+                let newData = newArr.filter((x) => {
+                  if (x.to_Do_Item === d.to_Do_Item) {
+                    return x.to_Do_Item;
+                  }
+                });
+
+                axios
+                  .post("http://localhost:3001/incomplete", newData, config)
+                  .then((res) => {
+                    if (res.status === 200) {
+                      newArr[newNew].to_Do_Completed = false;
+                      setInitialToDoList(newArr);
+                    }
+                  });
+              }}
+            >
+              <LeftCircleOutlined />
+            </button>
+            <button
+              className="btnRemove"
+              onClick={() => {
+                let token = localStorage.getItem("Authorization");
+                let config = {
+                  headers: {
+                    authorization: token,
+                  },
+                };
+                let newArr = [...initialToDoList];
+
+                let deletedArr = newArr.filter((x) => {
+                  return x._id === d._id;
+                });
+                let newNew = newArr.findIndex((item) => item._id === d._id);
+
+                axios
+                  .post("http://localhost:3001/deleted", deletedArr, config)
+                  .then((res) => {
+                    if (res.status === 200) {
+                      newArr.splice(newNew, 1);
+                      setInitialToDoList(newArr);
+                    }
+                  });
+              }}
+            >
+              <CloseCircleOutlined />
+            </button>
+          </span>
+        </div>
       </div>
     ));
   const onFinish = (values) => {
@@ -202,10 +279,10 @@ const App = () => {
               .then((res) => {
                 if (res.data.status === 200) {
                   let toDoData = res.data.info;
-                  console.log(toDoData);
+
                   let arr = [];
                   arr.push(toDoData);
-                  console.log(arr);
+
                   setInitialToDoList(arr[0]);
                   setSuccessfulLogIn(true);
                 }
@@ -301,14 +378,13 @@ const App = () => {
       axios
         .post("http://localhost:3001/users/userstodo", newToDo, config)
         .then((res, err) => {
-          if (res.data.status == 409) {
+          if (res.data.status === 409) {
             alert(`${res.data.message}`);
             setTask("");
           } else {
             let oldArr = initialToDoList;
             setInitialToDoList([...oldArr, newToDo]);
             setTask("");
-            console.log(res);
           }
         });
     }

@@ -10,8 +10,6 @@ const passport = require("./auth/passport");
 const bcrypt = require("bcrypt");
 const log_In_Model = require("./model/users");
 const to_Do_Model = require("./model/toDo");
-// const routes = require("./routes/routes");
-// const secureRoute = require("./routes/secure-routes");
 const mongoPassword = process.env.REACT_APP_MONGODB_PASSWORD;
 const uri = `mongodb+srv://Stark-programming:${mongoPassword}@cluster0.8nsdv.mongodb.net/Users?retryWrites=true&w=majority`;
 const jwtAuth = passport.authenticate("jwt", { session: false });
@@ -105,13 +103,11 @@ app.get("/users/userstodo", jwtAuth, async (req, res) => {
 });
 
 app.post("/users/userstodo", jwtAuth, async (req, res) => {
-  console.log(req);
   let toDo = new to_Do_Model({
     name: req.user.user.name,
     to_Do_Item: req.body.to_Do_Item,
     to_Do_Completed: req.body.to_Do_Completed,
   });
-  console.log(toDo);
 
   to_Do_Model.exists(
     { to_Do_Item: req.body.to_Do_Item },
@@ -147,10 +143,40 @@ app.post("/completed", jwtAuth, async (req, res) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(doc);
+        res
+          .status(200)
+          .json({ message: "item sucessfully changed to completed" });
       }
     }
   );
+});
+app.post("/incomplete", jwtAuth, async (req, res) => {
+  let query = { to_Do_Item: req.body[0].to_Do_Item };
+  to_Do_Model.findOneAndUpdate(
+    query,
+    { to_Do_Completed: false },
+    function (err, doc) {
+      if (err) {
+        console.log(err);
+      } else {
+        res
+          .status(200)
+          .json({ message: "item successfully changed to incomplete" });
+      }
+    }
+  );
+});
+app.post("/deleted", jwtAuth, async (req, res) => {
+  let id = req.body[0]._id;
+  console.log(id);
+
+  to_Do_Model.findByIdAndDelete(id, function (err, doc) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.status(200).json({ message: "item successfully deleted" });
+    }
+  });
 });
 
 app.listen(3001);
