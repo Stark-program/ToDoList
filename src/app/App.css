@@ -19,7 +19,7 @@ input {
 }
 body {
   margin: 0;
-  background-color: aqua !important;
+  /* background-color: aqua !important; */
   margin-top: 5%;
   overflow: scroll;
 }
@@ -51,4 +51,16 @@ ul {
 }
 .sign_up_header {
   margin-bottom: 2rem;
+}
+.notepad-logo {
+  size: 2rem;
+}
+.toDoInput {
+  margin-bottom: 1rem;
+}
+.completed-list {
+  border-radius: 20%;
+}
+.ant-card-body {
+  padding: 0px;
 }

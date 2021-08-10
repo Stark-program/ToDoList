@@ -5,7 +5,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { Button, Form, Input, Checkbox } from "antd";
 import "antd/dist/antd.css";
-import { Card } from "antd";
+import { Card, List, Avatar } from "antd";
+import { BiNotepad } from "react-icons/bi";
 
 import {
   CloseCircleOutlined,
@@ -39,77 +40,99 @@ const App = () => {
   // maps over state variable (list), and grabs new key items, and displays them.
   // console.log(initialToDoList);
   const listItems = () => {
-    if (successfulLogIn === true) {
-      return initialToDoList
-        .filter((x) => x.to_Do_Completed === false)
-        .map((d) => (
-          <div key={d._id.toString()} className="row">
-            <div className="col-sm-10">
-              <li className="uniqueItem">{d.to_Do_Item}</li>
-            </div>
-            <div className="col-sm-2">
-              <span>
-                <button
-                  className="btnComplete"
-                  onClick={() => {
-                    let token = localStorage.getItem("Authorization");
-                    let config = {
-                      headers: {
-                        authorization: token,
-                      },
-                    };
-                    let newArr = [...initialToDoList];
-                    let newNew = newArr.findIndex((item) => item._id === d._id);
-                    let newData = newArr.filter((x) => {
-                      if (x.to_Do_Item === d.to_Do_Item) {
-                        return x.to_Do_Item;
-                      }
-                    });
+    const filteredFalse = initialToDoList.filter(
+      (x) => x.to_Do_Completed === false
+    );
 
-                    axios
-                      .post("http://localhost:3001/completed", newData, config)
-                      .then((res) => {
-                        if (res.status === 200) {
-                          newArr[newNew].to_Do_Completed = true;
-                          setInitialToDoList(newArr);
+    return (
+      <div className="row">
+        <List
+          itemLayout="horizontal"
+          dataSource={filteredFalse}
+          renderItem={(d) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<BiNotepad className="notepad-logo" size={50} />}
+                title={d.to_Do_Item.toUpperCase()}
+                description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+              />
+              <div className="col-sm-2">
+                <span>
+                  <button
+                    className="btnComplete"
+                    onClick={() => {
+                      let token = localStorage.getItem("Authorization");
+                      let config = {
+                        headers: {
+                          authorization: token,
+                        },
+                      };
+                      let newArr = [...filteredFalse];
+                      let newNew = newArr.findIndex(
+                        (item) => item._id === d._id
+                      );
+                      let newData = newArr.filter((x) => {
+                        if (x.to_Do_Item === d.to_Do_Item) {
+                          return x.to_Do_Item;
                         }
                       });
-                  }}
-                >
-                  <CheckCircleOutlined />
-                </button>
-                <button
-                  className="btnRemove"
-                  onClick={() => {
-                    let token = localStorage.getItem("Authorization");
-                    let config = {
-                      headers: {
-                        authorization: token,
-                      },
-                    };
-                    let newArr = [...initialToDoList];
-                    let newNew = newArr.findIndex((item) => item._id === d._id);
-                    let deletedArr = newArr.filter((x) => {
-                      return x._id === d._id;
-                    });
 
-                    axios
-                      .post("http://localhost:3001/deleted", deletedArr, config)
-                      .then((res) => {
-                        if (res.status === 200) {
-                          newArr.splice(newNew, 1);
-                          setInitialToDoList(newArr);
-                        }
+                      axios
+                        .post(
+                          "http://localhost:3001/completed",
+                          newData,
+                          config
+                        )
+                        .then((res) => {
+                          if (res.status === 200) {
+                            newArr[newNew].to_Do_Completed = true;
+                            setInitialToDoList(newArr);
+                          }
+                        });
+                    }}
+                  >
+                    <CheckCircleOutlined />
+                  </button>
+                  <button
+                    className="btnRemove"
+                    onClick={() => {
+                      let token = localStorage.getItem("Authorization");
+                      let config = {
+                        headers: {
+                          authorization: token,
+                        },
+                      };
+                      let newArr = [...initialToDoList];
+                      let newNew = newArr.findIndex(
+                        (item) => item._id === d._id
+                      );
+                      let deletedArr = newArr.filter((x) => {
+                        return x._id === d._id;
                       });
-                  }}
-                >
-                  <CloseCircleOutlined />
-                </button>
-              </span>
-            </div>
-          </div>
-        ));
-    }
+
+                      axios
+                        .post(
+                          "http://localhost:3001/deleted",
+                          deletedArr,
+                          config
+                        )
+                        .then((res) => {
+                          if (res.status === 200) {
+                            newArr.splice(newNew, 1);
+                            setInitialToDoList(newArr);
+                          }
+                        });
+                    }}
+                  >
+                    <CloseCircleOutlined />
+                  </button>
+                </span>
+              </div>
+            </List.Item>
+          )}
+        />
+      </div>
+    );
   };
 
   const completedListItems = initialToDoList
@@ -395,7 +418,7 @@ const App = () => {
         <h1>Stark's To-Do List</h1>
         <div className="toDoWrapper">
           <input
-            size="100"
+            placeholder="task title"
             type="text"
             className="toDoInput"
             id="textInput"
@@ -410,6 +433,11 @@ const App = () => {
             autoFocus
           ></input>
         </div>
+        <input
+          width="100%"
+          className="toDoInput"
+          placeholder="description of task"
+        ></input>
         <div className="addToListWrapper">
           <Button onClick={handleClick} type="primary" id="btnClick">
             Add to List
@@ -418,24 +446,34 @@ const App = () => {
 
         <div className="container itemLists">
           <div className="row">
-            <div className="col-sm-6 listToDo">
+            <div className="col-lg-6 listToDo">
               <div className="site-card-border-less-wrapper">
                 <Card
+                  className="completed-list"
                   title="Stuff To Do"
                   border="true"
-                  style={{ width: 500, height: "100%", marginTop: 50 }}
+                  style={{
+                    height: "100%",
+                    marginTop: 50,
+                    backgroundColor: "#a3a3c2",
+                  }}
                 >
                   <ul>{listItems()}</ul>
                 </Card>
               </div>
             </div>
-            <div className="col-sm-6 listComplete">
+            <div className="col-lg-6 listComplete">
               <div className="site-card-border-less-wrapper">
                 <Card
+                  className="completed-list"
                   id="completedTaskCard"
                   title="Completed Tasks"
                   border="true"
-                  style={{ width: 500, height: "100%", marginTop: 50 }}
+                  style={{
+                    height: "100%",
+                    marginTop: 50,
+                    backgroundColor: "#a3a3c2",
+                  }}
                 >
                   <ul>{completedListItems}</ul>
                 </Card>
