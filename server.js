@@ -84,6 +84,7 @@ app.post("/users/login", async (req, res) => {
       res.send({
         status: 200,
         message: "Successfully logged in",
+        user: user[0].name,
         authorization: token,
       });
     } else {
@@ -114,7 +115,7 @@ app.post("/users/userstodo", jwtAuth, async (req, res) => {
   console.log(toDo);
 
   to_Do_Model.exists(
-    { to_Do_Item: req.body.to_Do_Item },
+    { to_Do_Item: req.body.to_Do_Item, name: req.user.user.name },
     async (err, result) => {
       let task = req.body.to_Do_Item;
       if (err) {

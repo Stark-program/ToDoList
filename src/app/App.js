@@ -7,6 +7,7 @@ import { Button, Form, Input, Checkbox } from "antd";
 import "antd/dist/antd.css";
 import { Card, List, Avatar } from "antd";
 import { BiNotepad } from "react-icons/bi";
+import { FcCheckmark } from "react-icons/fc";
 
 import {
   CloseCircleOutlined,
@@ -26,8 +27,8 @@ const App = () => {
   const [isToDoLists, setIsToDoLists] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [initialToDoList, setInitialToDoList] = useState([]);
-  const [successfulLogIn, setSuccessfulLogIn] = useState(false);
   const [toDoDescription, setToDoDescription] = useState("");
+  const [userTitle, setUserTitle] = useState("");
 
   const inputElements = useRef();
 
@@ -39,7 +40,7 @@ const App = () => {
   //used to update the state of the completed task list.
 
   // maps over state variable (list), and grabs new key items, and displays them.
-  // console.log(initialToDoList);
+
   const listItems = () => {
     const filteredFalse = initialToDoList.filter(
       (x) => x.to_Do_Completed === false
@@ -68,12 +69,12 @@ const App = () => {
                           authorization: token,
                         },
                       };
-                      let newArr = [...filteredFalse];
-                      console.log(1, "before split", newArr);
+                      let newArr = [...initialToDoList];
 
                       let newNew = newArr.findIndex(
                         (item) => item._id === d._id
                       );
+
                       let newData = newArr.filter((x) => {
                         if (x.to_Do_Item === d.to_Do_Item) {
                           return x.to_Do_Item;
@@ -89,13 +90,8 @@ const App = () => {
                         .then((res) => {
                           if (res.status === 200) {
                             newArr[newNew].to_Do_Completed = true;
-                            console.log(2, "new data added", newArr);
+
                             setInitialToDoList(newArr);
-                            console.log(
-                              3,
-                              "passed on as true",
-                              initialToDoList
-                            );
                           }
                         });
                     }}
@@ -112,7 +108,7 @@ const App = () => {
                         },
                       };
                       let newArr = [...initialToDoList];
-                      console.log("before split: ", newArr);
+
                       let newNew = newArr.findIndex(
                         (item) => item._id === d._id
                       );
@@ -129,7 +125,7 @@ const App = () => {
                         .then((res) => {
                           if (res.status === 200) {
                             newArr.splice(newNew, 1);
-                            console.log("after split", newArr);
+
                             setInitialToDoList(newArr);
                           }
                         });
@@ -150,7 +146,6 @@ const App = () => {
     const filteredTrue = initialToDoList.filter(
       (x) => x.to_Do_Completed === true
     );
-    console.log(4, "these are the completed=true items", filteredTrue);
 
     return (
       <div className="row">
@@ -160,7 +155,7 @@ const App = () => {
           renderItem={(d) => (
             <List.Item>
               <List.Item.Meta
-                avatar={<BiNotepad className="notepad-logo" size={50} />}
+                avatar={<FcCheckmark className="notepad-logo" size={50} />}
                 title={d.to_Do_Item.toUpperCase()}
                 description={d.description}
               />
@@ -187,19 +182,19 @@ const App = () => {
 
                       axios
                         .post(
-                          "http://localhost:3001/completed",
+                          "http://localhost:3001/incomplete",
                           newData,
                           config
                         )
                         .then((res) => {
                           if (res.status === 200) {
-                            newArr[newNew].to_Do_Completed = true;
+                            newArr[newNew].to_Do_Completed = false;
                             setInitialToDoList(newArr);
                           }
                         });
                     }}
                   >
-                    <CheckCircleOutlined />
+                    <LeftCircleOutlined />
                   </button>
                   <button
                     className="btnRemove"
@@ -323,6 +318,8 @@ const App = () => {
         .post("http://localhost:3001/users/login", values)
         .then((res) => {
           if (res.data.status === 200) {
+            let user = res.data.user;
+            setUserTitle(user);
             setIsLoginPage(false);
             setIsToDoLists(true);
 
@@ -342,9 +339,9 @@ const App = () => {
 
                   let arr = [];
                   arr.push(toDoData);
+                  console.log(res.data.info);
 
                   setInitialToDoList(arr[0]);
-                  setSuccessfulLogIn(true);
                 }
               });
           }
@@ -403,13 +400,18 @@ const App = () => {
           <Form.Item
             name="remember"
             valuePropName="checked"
-            wrapperCol={{ offset: 7, span: 10 }}
+            wrapperCol={{ offset: 0, span: 24 }}
+            className="rememberCheckBoxLogInPage"
           >
             <Checkbox>Remember me</Checkbox>
           </Form.Item>
 
-          <Form.Item wrapperCol={{ offset: 7, span: 10 }}>
-            <Button type="primary" htmlType="submit">
+          <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="submitBtnLogInPage"
+            >
               Submit
             </Button>
           </Form.Item>
@@ -445,7 +447,9 @@ const App = () => {
           } else {
             let oldArr = initialToDoList;
             setInitialToDoList([...oldArr, newToDo]);
+
             setToDoDescription(toDoDescription);
+
             setTask("");
             setToDoDescription("");
           }
@@ -456,7 +460,7 @@ const App = () => {
   const toDoLists = () => {
     return (
       <div className="App">
-        <h1>Stark's To-Do List</h1>
+        <h1>{`${userTitle}'s To Do List`}</h1>
         <div className="toDoWrapper">
           <input
             placeholder="task title"
@@ -476,7 +480,7 @@ const App = () => {
         </div>
         <input
           width="100%"
-          className="toDoInput"
+          className="descriptionInput"
           placeholder="description of task"
           value={toDoDescription}
           onChange={(e) => setToDoDescription(e.target.value)}
