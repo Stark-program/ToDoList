@@ -27,6 +27,7 @@ const App = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [initialToDoList, setInitialToDoList] = useState([]);
   const [successfulLogIn, setSuccessfulLogIn] = useState(false);
+  const [toDoDescription, setToDoDescription] = useState("");
 
   const inputElements = useRef();
 
@@ -54,7 +55,7 @@ const App = () => {
               <List.Item.Meta
                 avatar={<BiNotepad className="notepad-logo" size={50} />}
                 title={d.to_Do_Item.toUpperCase()}
-                description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+                description={d.description}
               />
               <div className="col-sm-2">
                 <span>
@@ -68,6 +69,113 @@ const App = () => {
                         },
                       };
                       let newArr = [...filteredFalse];
+                      console.log(1, "before split", newArr);
+
+                      let newNew = newArr.findIndex(
+                        (item) => item._id === d._id
+                      );
+                      let newData = newArr.filter((x) => {
+                        if (x.to_Do_Item === d.to_Do_Item) {
+                          return x.to_Do_Item;
+                        }
+                      });
+
+                      axios
+                        .post(
+                          "http://localhost:3001/completed",
+                          newData,
+                          config
+                        )
+                        .then((res) => {
+                          if (res.status === 200) {
+                            newArr[newNew].to_Do_Completed = true;
+                            console.log(2, "new data added", newArr);
+                            setInitialToDoList(newArr);
+                            console.log(
+                              3,
+                              "passed on as true",
+                              initialToDoList
+                            );
+                          }
+                        });
+                    }}
+                  >
+                    <CheckCircleOutlined />
+                  </button>
+                  <button
+                    className="btnRemove"
+                    onClick={() => {
+                      let token = localStorage.getItem("Authorization");
+                      let config = {
+                        headers: {
+                          authorization: token,
+                        },
+                      };
+                      let newArr = [...initialToDoList];
+                      console.log("before split: ", newArr);
+                      let newNew = newArr.findIndex(
+                        (item) => item._id === d._id
+                      );
+                      let deletedArr = newArr.filter((x) => {
+                        return x._id === d._id;
+                      });
+
+                      axios
+                        .post(
+                          "http://localhost:3001/deleted",
+                          deletedArr,
+                          config
+                        )
+                        .then((res) => {
+                          if (res.status === 200) {
+                            newArr.splice(newNew, 1);
+                            console.log("after split", newArr);
+                            setInitialToDoList(newArr);
+                          }
+                        });
+                    }}
+                  >
+                    <CloseCircleOutlined />
+                  </button>
+                </span>
+              </div>
+            </List.Item>
+          )}
+        />
+      </div>
+    );
+  };
+
+  const completedListItems = () => {
+    const filteredTrue = initialToDoList.filter(
+      (x) => x.to_Do_Completed === true
+    );
+    console.log(4, "these are the completed=true items", filteredTrue);
+
+    return (
+      <div className="row">
+        <List
+          itemLayout="horizontal"
+          dataSource={filteredTrue}
+          renderItem={(d) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<BiNotepad className="notepad-logo" size={50} />}
+                title={d.to_Do_Item.toUpperCase()}
+                description={d.description}
+              />
+              <div className="col-sm-2">
+                <span>
+                  <button
+                    className="btnComplete"
+                    onClick={() => {
+                      let token = localStorage.getItem("Authorization");
+                      let config = {
+                        headers: {
+                          authorization: token,
+                        },
+                      };
+                      let newArr = [...initialToDoList];
                       let newNew = newArr.findIndex(
                         (item) => item._id === d._id
                       );
@@ -134,77 +242,6 @@ const App = () => {
       </div>
     );
   };
-
-  const completedListItems = initialToDoList
-    .filter((x) => x.to_Do_Completed === true)
-    .map((d) => (
-      <div key={d._id.toString()} className="row">
-        <div className="col-sm-10">
-          <li className="uniqueItem">{d.to_Do_Item}</li>
-        </div>
-        <div className="col-sm-2">
-          <span>
-            <button
-              className="btnComplete"
-              onClick={() => {
-                let token = localStorage.getItem("Authorization");
-                let config = {
-                  headers: {
-                    authorization: token,
-                  },
-                };
-                let newArr = [...initialToDoList];
-                let newNew = newArr.findIndex((item) => item._id === d._id);
-                let newData = newArr.filter((x) => {
-                  if (x.to_Do_Item === d.to_Do_Item) {
-                    return x.to_Do_Item;
-                  }
-                });
-
-                axios
-                  .post("http://localhost:3001/incomplete", newData, config)
-                  .then((res) => {
-                    if (res.status === 200) {
-                      newArr[newNew].to_Do_Completed = false;
-                      setInitialToDoList(newArr);
-                    }
-                  });
-              }}
-            >
-              <LeftCircleOutlined />
-            </button>
-            <button
-              className="btnRemove"
-              onClick={() => {
-                let token = localStorage.getItem("Authorization");
-                let config = {
-                  headers: {
-                    authorization: token,
-                  },
-                };
-                let newArr = [...initialToDoList];
-
-                let deletedArr = newArr.filter((x) => {
-                  return x._id === d._id;
-                });
-                let newNew = newArr.findIndex((item) => item._id === d._id);
-
-                axios
-                  .post("http://localhost:3001/deleted", deletedArr, config)
-                  .then((res) => {
-                    if (res.status === 200) {
-                      newArr.splice(newNew, 1);
-                      setInitialToDoList(newArr);
-                    }
-                  });
-              }}
-            >
-              <CloseCircleOutlined />
-            </button>
-          </span>
-        </div>
-      </div>
-    ));
   const onFinish = (values) => {
     axios
       .post("http://localhost:3001/signup", values)
@@ -395,7 +432,7 @@ const App = () => {
       const newToDo = {
         to_Do_Item: task,
         to_Do_Completed: false,
-        _id: Math.floor(Math.random() * 10000000),
+        description: toDoDescription,
       };
 
       axios
@@ -404,14 +441,18 @@ const App = () => {
           if (res.data.status === 409) {
             alert(`${res.data.message}`);
             setTask("");
+            setToDoDescription("");
           } else {
             let oldArr = initialToDoList;
             setInitialToDoList([...oldArr, newToDo]);
+            setToDoDescription(toDoDescription);
             setTask("");
+            setToDoDescription("");
           }
         });
     }
   };
+
   const toDoLists = () => {
     return (
       <div className="App">
@@ -437,6 +478,13 @@ const App = () => {
           width="100%"
           className="toDoInput"
           placeholder="description of task"
+          value={toDoDescription}
+          onChange={(e) => setToDoDescription(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              handleClick();
+            }
+          }}
         ></input>
         <div className="addToListWrapper">
           <Button onClick={handleClick} type="primary" id="btnClick">
@@ -475,7 +523,7 @@ const App = () => {
                     backgroundColor: "#a3a3c2",
                   }}
                 >
-                  <ul>{completedListItems}</ul>
+                  <ul>{completedListItems()}</ul>
                 </Card>
               </div>
             </div>

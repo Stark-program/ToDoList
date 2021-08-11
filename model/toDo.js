@@ -9,6 +9,7 @@ const toDoSchema = new Schema({
   id: Number,
   to_Do_Item: String,
   to_Do_Completed: Boolean,
+  description: String,
 });
 
 const to_Do_Model = mongoose.model(dbToDoName, toDoSchema);

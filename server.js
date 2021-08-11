@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+var ObjectId = require("mongodb").ObjectID;
 const app = express();
 
 const jwt = require("jsonwebtoken");
@@ -103,11 +104,14 @@ app.get("/users/userstodo", jwtAuth, async (req, res) => {
 });
 
 app.post("/users/userstodo", jwtAuth, async (req, res) => {
+  console.log(req.body);
   let toDo = new to_Do_Model({
     name: req.user.user.name,
     to_Do_Item: req.body.to_Do_Item,
     to_Do_Completed: req.body.to_Do_Completed,
+    description: req.body.description.toDoDescription,
   });
+  console.log(toDo);
 
   to_Do_Model.exists(
     { to_Do_Item: req.body.to_Do_Item },
@@ -168,7 +172,6 @@ app.post("/incomplete", jwtAuth, async (req, res) => {
 });
 app.post("/deleted", jwtAuth, async (req, res) => {
   let id = req.body[0]._id;
-  console.log(id);
 
   to_Do_Model.findByIdAndDelete(id, function (err, doc) {
     if (err) {
