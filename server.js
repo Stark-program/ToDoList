@@ -105,14 +105,12 @@ app.get("/users/userstodo", jwtAuth, async (req, res) => {
 });
 
 app.post("/users/userstodo", jwtAuth, async (req, res) => {
-  console.log(req.body);
   let toDo = new to_Do_Model({
     name: req.user.user.name,
     to_Do_Item: req.body.to_Do_Item,
     to_Do_Completed: req.body.to_Do_Completed,
-    description: req.body.description.toDoDescription,
+    description: req.body.description,
   });
-  console.log(toDo);
 
   to_Do_Model.exists(
     { to_Do_Item: req.body.to_Do_Item, name: req.user.user.name },

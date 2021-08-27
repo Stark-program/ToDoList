@@ -77,3 +77,6 @@ ul {
 .submitBtnLogInPage {
   align-items: left;
 }
+.logout-btn {
+  margin-left: 85%;
+}

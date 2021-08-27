@@ -258,6 +258,10 @@ const App = () => {
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
+  const logInClick = () => {
+    setIsSignUp(false);
+    setIsLoginPage(true);
+  };
   const render_Sign_Up = () => {
     return (
       <div className="sign_up_form">
@@ -294,6 +298,11 @@ const App = () => {
             valuePropName="checked"
             wrapperCol={{ offset: 7, span: 10, offset: 7 }}
           >
+            <div>
+              <a href="#" className="sign_up_link" onClick={logInClick}>
+                Click here to log in
+              </a>
+            </div>
             <Checkbox>Remember me</Checkbox>
           </Form.Item>
 
@@ -366,7 +375,7 @@ const App = () => {
 
     return (
       <div className="log_in_page">
-        <h2 className="sign_up_header">Log in here</h2>
+        <h2 className="sign_up_header">Log in here for your ToDo list</h2>
         <Form
           name="basic"
           labelCol={{ span: 7 }}
@@ -447,9 +456,7 @@ const App = () => {
           } else {
             let oldArr = initialToDoList;
             setInitialToDoList([...oldArr, newToDo]);
-
             setToDoDescription(toDoDescription);
-
             setTask("");
             setToDoDescription("");
           }
@@ -457,10 +464,21 @@ const App = () => {
     }
   };
 
+  const handleLogout = () => {
+    setIsToDoLists(false);
+    setIsLoginPage(true);
+    localStorage.removeItem("Authorization");
+    localStorage.removeItem("token");
+  };
+
   const toDoLists = () => {
     return (
       <div className="App">
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
         <h1>{`${userTitle}'s To Do List`}</h1>
+
         <div className="toDoWrapper">
           <input
             placeholder="task title"
