@@ -5,7 +5,7 @@ import { useState } from "react";
 import To_Do_Lists from "./todo";
 
 function ProtectedRoute({ component: Component, ...restOfProps }) {
-  const [isValidated, setIsValidated] = useState(false);
+  const [isValidated, setIsValidated] = useState(true);
   let token = localStorage.getItem("Authorization");
   let config = {
     headers: {
@@ -13,15 +13,14 @@ function ProtectedRoute({ component: Component, ...restOfProps }) {
     },
   };
   axios.get("http://localhost:3001/checkAuth", config).then((res) => {
-    let authToken = res.config.headers.authorization;
-    if (authToken === token) {
+    if (res.status === 201) {
       console.log("res received", res);
       setIsValidated(true);
     }
     console.log("value", isValidated);
     return null;
   });
-
+  console.log(2, isValidated);
   return (
     <Route
       {...restOfProps}
