@@ -95,7 +95,10 @@ app.post("/users/login", async (req, res) => {
     console.log(err);
   }
 });
-
+app.get("/checkAuth", jwtAuth, async (req, res) => {
+  res.status(201).send({ message: "auth validated" });
+  console.log("request made");
+});
 app.get("/users/userstodo", jwtAuth, async (req, res) => {
   let user = req.user.user.name;
   to_Do_Model.find({ name: user }, (err, data) => {
