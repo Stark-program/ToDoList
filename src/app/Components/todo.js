@@ -12,31 +12,31 @@ import {
 } from "@ant-design/icons";
 import axios from "axios";
 
-const To_Do_Lists = () => {
+const To_Do_Lists = (props) => {
   const [initialToDoList, setInitialToDoList] = useState([]);
   const [toDoDescription, setToDoDescription] = useState("");
   const [userTitle, setUserTitle] = useState("");
   const [task, setTask] = useState("");
   const history = useHistory();
 
-  //   let token = localStorage.getItem("Authorization");
-  //   let config = {
-  //     headers: {
-  //       authorization: token,
-  //     },
-  //   };
+  // let token = localStorage.getItem("Authorization");
+  // let config = {
+  //   headers: {
+  //     authorization: token,
+  //   },
+  // };
 
-  //   axios.get("http://localhost:3001/users/userstodo", config).then((res) => {
-  //     if (res.data.status === 200) {
-  //       let toDoData = res.data.info;
+  // axios.get("http://localhost:3001/users/userstodo", config).then((res) => {
+  //   if (res.data.status === 200) {
+  //     let toDoData = res.data.info;
 
-  //       let arr = [];
-  //       arr.push(toDoData);
-  //       console.log("test", res.data.info);
+  //     let arr = [];
+  //     arr.push(toDoData);
+  //     console.log("test", res.data.info);
 
-  //       setInitialToDoList(arr[0]);
-  //     }
-  //   });
+  //     setInitialToDoList(arr[0]);
+  //   }
+  // });
   const listItems = () => {
     const filteredFalse = initialToDoList.filter(
       (x) => x.to_Do_Completed === false
@@ -280,7 +280,7 @@ const To_Do_Lists = () => {
       <button className="logout-btn" onClick={handleLogout}>
         Logout
       </button>
-      <h1>{`${userTitle}'s To Do List`}</h1>
+      <h1>{`${props.user}'s To Do List`}</h1>
 
       <div className="toDoWrapper">
         <input

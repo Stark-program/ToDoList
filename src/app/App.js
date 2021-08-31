@@ -15,13 +15,14 @@ import "antd/dist/antd.css";
 
 const App = () => {
   // sets state for input field
+  const [user, setUser] = useState(null);
 
   return (
     <div className="App">
       <BrowserRouter>
         <Switch>
           <Route exact path="/">
-            <Log_In_Page />
+            {(props) => <Log_In_Page {...props} onLogin={setUser} />}
           </Route>
           <Route exact path="/signup">
             <Sign_Up />
@@ -30,7 +31,10 @@ const App = () => {
             exact
             path="/todo"
             component={To_Do_Lists}
-          ></ProtectedRoute>
+            user={user}
+          >
+            <To_Do_Lists />
+          </ProtectedRoute>
         </Switch>
       </BrowserRouter>
     </div>

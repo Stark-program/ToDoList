@@ -5,8 +5,8 @@ import { Button, Form, Input, Checkbox } from "antd";
 import "antd/dist/antd.css";
 import { Link, Redirect, Route, useHistory } from "react-router-dom";
 
-const Log_In_Page = () => {
-  const [userTitle, setUserTitle] = useState("");
+const Log_In_Page = (props) => {
+  console.log(props);
 
   const inputElements = useRef();
   const history = useHistory();
@@ -18,7 +18,7 @@ const Log_In_Page = () => {
         if (res.data.status === 200) {
           console.log(res);
           let user = res.data.user;
-          setUserTitle(user);
+          props.onLogin(user);
           let token = res.data.authorization;
           localStorage.setItem("Authorization", token);
           history.push("/todo");
