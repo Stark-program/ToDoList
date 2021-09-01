@@ -15,28 +15,33 @@ import axios from "axios";
 const To_Do_Lists = (props) => {
   const [initialToDoList, setInitialToDoList] = useState([]);
   const [toDoDescription, setToDoDescription] = useState("");
-  const [userTitle, setUserTitle] = useState("");
   const [task, setTask] = useState("");
-  const history = useHistory();
+  console.log("todolist", props);
 
-  // let token = localStorage.getItem("Authorization");
-  // let config = {
-  //   headers: {
-  //     authorization: token,
-  //   },
-  // };
+  useEffect(async () => {
+    let token = props.token;
+    console.log("this is the token", token);
+    let config = {
+      headers: {
+        authorization: token,
+      },
+    };
 
-  // axios.get("http://localhost:3001/users/userstodo", config).then((res) => {
-  //   if (res.data.status === 200) {
-  //     let toDoData = res.data.info;
+    await axios
+      .get("http://localhost:3001/users/userstodo", config)
+      .then((res) => {
+        if (res.data.status === 200) {
+          let toDoData = res.data.info;
 
-  //     let arr = [];
-  //     arr.push(toDoData);
-  //     console.log("test", res.data.info);
+          let arr = [];
+          arr.push(toDoData);
+          console.log("test", res.data.info);
 
-  //     setInitialToDoList(arr[0]);
-  //   }
-  // });
+          setInitialToDoList(arr[0]);
+        }
+      });
+  }, []);
+
   const listItems = () => {
     const filteredFalse = initialToDoList.filter(
       (x) => x.to_Do_Completed === false
@@ -272,7 +277,7 @@ const To_Do_Lists = (props) => {
   const handleLogout = () => {
     localStorage.removeItem("Authorization");
     localStorage.removeItem("token");
-    history.push("/");
+    props.onLogout(null);
   };
 
   return (

@@ -96,7 +96,9 @@ app.post("/users/login", async (req, res) => {
   }
 });
 app.get("/checkAuth", jwtAuth, async (req, res) => {
-  res.status(201).send({ message: "auth validated" });
+  let user = req.user.user.name;
+
+  res.status(201).send({ message: "auth validated", name: user });
   console.log("request made");
 });
 app.get("/users/userstodo", jwtAuth, async (req, res) => {

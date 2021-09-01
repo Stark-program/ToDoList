@@ -6,21 +6,20 @@ import "antd/dist/antd.css";
 import { Link, Redirect, Route, useHistory } from "react-router-dom";
 
 const Log_In_Page = (props) => {
-  console.log(props);
+  console.log("log-in", props);
 
   const inputElements = useRef();
   const history = useHistory();
   const onLogin = (values) => {
-    console.log("working", values);
     axios
       .post("http://localhost:3001/users/login", values)
       .then((res) => {
         if (res.data.status === 200) {
-          console.log(res);
           let user = res.data.user;
           props.onLogin(user);
           let token = res.data.authorization;
           localStorage.setItem("Authorization", token);
+          props.getToken(token);
           history.push("/todo");
         }
         if (res.data.status === 400) {
