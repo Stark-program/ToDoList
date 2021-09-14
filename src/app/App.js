@@ -18,29 +18,24 @@ import ProtectedRoute from "./Components/ProtectedRoute";
 
 import "antd/dist/antd.css";
 
-// axios.defaults.baseURL = "http://localhost:3001/";
-// axios.defaults.headers.common = { Authorization: `${token}` };
-
 const App = () => {
-  // sets state for input field
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState("");
-  console.log("this is the token 2", token);
+
+  axios.interceptors.request.use(function (config) {
+    const token = localStorage.getItem("Authorization");
+    config.headers.Authorization = token;
+
+    return config;
+  });
 
   useEffect(() => {
-    let token = localStorage.getItem("Authorization");
-    let config = {
-      headers: {
-        authorization: token,
-      },
-    };
-
-    axios.get("http://localhost:3001/checkAuth", config).then((res) => {
-      if (res.status === 201) {
-        console.log("checkAuth", res);
-        setUser(res.data.name);
+    async function fetchAuth() {
+      const response = await axios.get("http://localhost:3001/checkAuth");
+      if (response.status === 201) {
+        setUser(response.data.name);
       }
-    });
+    }
+    fetchAuth();
   }, []);
 
   return (
@@ -50,13 +45,7 @@ const App = () => {
           <Route exact path="/">
             {(props) => {
               if (user === null) {
-                return (
-                  <Log_In_Page
-                    {...props}
-                    onLogin={setUser}
-                    getToken={setToken}
-                  />
-                );
+                return <Log_In_Page {...props} onLogin={setUser} />;
               } else return <Redirect to="/todo" />;
             }}
           </Route>
@@ -69,7 +58,6 @@ const App = () => {
             component={To_Do_Lists}
             user={user}
             onLogout={setUser}
-            token={token}
           />
         </Switch>
       </BrowserRouter>

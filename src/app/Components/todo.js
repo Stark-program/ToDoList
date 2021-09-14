@@ -16,30 +16,17 @@ const To_Do_Lists = (props) => {
   const [initialToDoList, setInitialToDoList] = useState([]);
   const [toDoDescription, setToDoDescription] = useState("");
   const [task, setTask] = useState("");
-  console.log("todolist", props);
 
   useEffect(async () => {
-    let token = props.token;
-    console.log("this is the token", token);
-    let config = {
-      headers: {
-        authorization: token,
-      },
-    };
+    await axios.get("http://localhost:3001/users/userstodo").then((res) => {
+      if (res.data.status === 200) {
+        let toDoData = res.data.info;
 
-    await axios
-      .get("http://localhost:3001/users/userstodo", config)
-      .then((res) => {
-        if (res.data.status === 200) {
-          let toDoData = res.data.info;
-
-          let arr = [];
-          arr.push(toDoData);
-          console.log("test", res.data.info);
-
-          setInitialToDoList(arr[0]);
-        }
-      });
+        let arr = [];
+        arr.push(toDoData);
+        setInitialToDoList(arr[0]);
+      }
+    });
   }, []);
 
   const listItems = () => {
@@ -64,12 +51,6 @@ const To_Do_Lists = (props) => {
                   <button
                     className="btnComplete"
                     onClick={() => {
-                      let token = localStorage.getItem("Authorization");
-                      let config = {
-                        headers: {
-                          authorization: token,
-                        },
-                      };
                       let newArr = [...initialToDoList];
 
                       let newNew = newArr.findIndex(
@@ -83,11 +64,7 @@ const To_Do_Lists = (props) => {
                       });
 
                       axios
-                        .post(
-                          "http://localhost:3001/completed",
-                          newData,
-                          config
-                        )
+                        .post("http://localhost:3001/completed", newData)
                         .then((res) => {
                           if (res.status === 200) {
                             newArr[newNew].to_Do_Completed = true;
@@ -102,12 +79,6 @@ const To_Do_Lists = (props) => {
                   <button
                     className="btnRemove"
                     onClick={() => {
-                      let token = localStorage.getItem("Authorization");
-                      let config = {
-                        headers: {
-                          authorization: token,
-                        },
-                      };
                       let newArr = [...initialToDoList];
 
                       let newNew = newArr.findIndex(
@@ -118,11 +89,7 @@ const To_Do_Lists = (props) => {
                       });
 
                       axios
-                        .post(
-                          "http://localhost:3001/deleted",
-                          deletedArr,
-                          config
-                        )
+                        .post("http://localhost:3001/deleted", deletedArr)
                         .then((res) => {
                           if (res.status === 200) {
                             newArr.splice(newNew, 1);
@@ -165,12 +132,6 @@ const To_Do_Lists = (props) => {
                   <button
                     className="btnComplete"
                     onClick={() => {
-                      let token = localStorage.getItem("Authorization");
-                      let config = {
-                        headers: {
-                          authorization: token,
-                        },
-                      };
                       let newArr = [...initialToDoList];
                       let newNew = newArr.findIndex(
                         (item) => item._id === d._id
@@ -182,11 +143,7 @@ const To_Do_Lists = (props) => {
                       });
 
                       axios
-                        .post(
-                          "http://localhost:3001/incomplete",
-                          newData,
-                          config
-                        )
+                        .post("http://localhost:3001/incomplete", newData)
                         .then((res) => {
                           if (res.status === 200) {
                             newArr[newNew].to_Do_Completed = false;
@@ -200,12 +157,6 @@ const To_Do_Lists = (props) => {
                   <button
                     className="btnRemove"
                     onClick={() => {
-                      let token = localStorage.getItem("Authorization");
-                      let config = {
-                        headers: {
-                          authorization: token,
-                        },
-                      };
                       let newArr = [...initialToDoList];
                       let newNew = newArr.findIndex(
                         (item) => item._id === d._id
@@ -215,11 +166,7 @@ const To_Do_Lists = (props) => {
                       });
 
                       axios
-                        .post(
-                          "http://localhost:3001/deleted",
-                          deletedArr,
-                          config
-                        )
+                        .post("http://localhost:3001/deleted", deletedArr)
                         .then((res) => {
                           if (res.status === 200) {
                             newArr.splice(newNew, 1);
@@ -240,13 +187,6 @@ const To_Do_Lists = (props) => {
   };
 
   const handleClick = () => {
-    let token = localStorage.getItem("Authorization");
-    let config = {
-      headers: {
-        authorization: token,
-      },
-    };
-
     if (task === "") {
       alert("Put text in field");
     } else {
@@ -257,7 +197,7 @@ const To_Do_Lists = (props) => {
       };
 
       axios
-        .post("http://localhost:3001/users/userstodo", newToDo, config)
+        .post("http://localhost:3001/users/userstodo", newToDo)
         .then((res, err) => {
           if (res.data.status === 409) {
             alert(`${res.data.message}`);
@@ -276,7 +216,6 @@ const To_Do_Lists = (props) => {
 
   const handleLogout = () => {
     localStorage.removeItem("Authorization");
-    localStorage.removeItem("token");
     props.onLogout(null);
   };
 

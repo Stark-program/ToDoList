@@ -6,21 +6,17 @@ import "antd/dist/antd.css";
 import { Link, Redirect, Route, useHistory } from "react-router-dom";
 
 const Log_In_Page = (props) => {
-  console.log("log-in", props);
-
   const inputElements = useRef();
-  const history = useHistory();
   const onLogin = (values) => {
     axios
       .post("http://localhost:3001/users/login", values)
       .then((res) => {
         if (res.data.status === 200) {
           let user = res.data.user;
-          props.onLogin(user);
           let token = res.data.authorization;
           localStorage.setItem("Authorization", token);
-          props.getToken(token);
-          history.push("/todo");
+
+          props.onLogin(user);
         }
         if (res.data.status === 400) {
           alert(res.data.message);
@@ -34,7 +30,6 @@ const Log_In_Page = (props) => {
       .catch((err) => {
         console.log(err);
       });
-    console.log("Success:", values);
   };
 
   const onLoginFailed = (errorInfo) => {
