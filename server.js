@@ -37,12 +37,11 @@ app.use(cors());
 app.post("/signup", async (req, res) => {
   user_name = req.body.username;
   pass = req.body.password;
-
-  let hashPass = await bcrypt.hash(pass, 10);
+  console.log(pass);
 
   user = new log_In_Model({
     name: user_name,
-    password: hashPass,
+    password: pass,
   });
 
   try {
@@ -74,9 +73,9 @@ app.post("/users/login", async (req, res) => {
     return res.send({ status: 400, message: "Username could not be found" });
   }
   try {
-    if (await bcrypt.compare(req.body.password, user[0].password)) {
+    const match = await bcrypt.compare(req.body.password, user[0].password);
+    if (match) {
       let body = { _id: user[0]._id, name: user[0].name };
-
       const token = jwt.sign(
         { user: body, exp: Math.floor(Date.now() / 1000) + 60 * 60 },
         process.env.SESSION_SECRET
